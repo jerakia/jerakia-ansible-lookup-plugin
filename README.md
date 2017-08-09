@@ -57,13 +57,13 @@ Note that the scope keys in this example are the scope values used in the Jeraki
 
 Supported configuration parameters of `jerakia.yaml` are:
 
-`token`: The Jerakia token to use to authenticate against Jerakia server, mandatory.
-`scope`: A hash containing the scope to use for the request, the values will be resolved as Ansible facts
-`protocol`: The URL protocol to use, default `http`
-`host`: Hostname of the Jerakia Server, default `localhost`
-`port`: Jerakia port to connect to, default `9843`
-`version`: Jerakia API version to use, default `1`
-`policy`: Jerakia policy to use for the lookups, default `default`
+* `token`: The Jerakia token to use to authenticate against Jerakia server, mandatory.
+* `scope`: A hash containing the scope to use for the request, the values will be resolved as Ansible facts
+* `protocol`: The URL protocol to use, default `http`
+* `host`: Hostname of the Jerakia Server, default `localhost`
+* `port`: Jerakia port to connect to, default `9843`
+* `version`: Jerakia API version to use, default `1`
+* `policy`: Jerakia policy to use for the lookups, default `default`
 
 
 ### Usage
