@@ -85,6 +85,10 @@ In the above example, if we assume the value of `ansible_nodename` is `foo.envia
 
 So we would be able to define a default value for the Apache port in `common/apache.yaml` but then have the ability to override this value based on a specific node, environment or operating system type.  Note that the structure of the hierarchy here is purely an example, and is entirely configurable to suit your specific environment and needs.
 
+### Contributing
+
+This is a very new project so contributions are always welcome, please submit a pull request in the first instance.
+
 ### Maintainer
 
 This project is maintained by Craig Dunn <craig@craigdunn.org> - @crayfishx
