@@ -1,0 +1,7 @@
+token: ansible:52cbf789c7837f9a4aef0d259c00d131f0f2a47894519c273c64a608de1382cba4221447752e9ac2
+scope:
+  hostname: ansible_nodename
+  environment: environment
+  osfamily: ansible_os_family
+
+policy: default
