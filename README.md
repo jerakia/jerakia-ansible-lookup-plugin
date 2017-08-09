@@ -78,10 +78,10 @@ Once configured with a jerakia.yaml, you can call the Jerakia lookup plugin dire
 
 In the above example, if we assume the value of `ansible_nodename` is `foo.enviatics.com`, `environment` is `dev` and `ansible_os_family` is `RedHat` then with the policy we have declared, this will cause Jerakia to look up the key `port` in the namespace `apache`, it will follow the following hierarchy of files looking for the key `port` and return the first value it finds:
 
-* `/var/lib/jerakia/data/node/foo.enviatics.com/apache.yaml
-* `/var/lib/jerakia/data/environment/dev/apache.yaml
-* `/var/lib/jerakia/data/operating_system/RedHat/apache.yaml
-* `/var/lib/jerakia/data/common/apache.yaml
+* `/var/lib/jerakia/data/node/foo.enviatics.com/apache.yaml`
+* `/var/lib/jerakia/data/environment/dev/apache.yaml`
+* `/var/lib/jerakia/data/operating_system/RedHat/apache.yaml`
+* `/var/lib/jerakia/data/common/apache.yaml`
 
 So we would be able to define a default value for the Apache port in `common/apache.yaml` but then have the ability to override this value based on a specific node, environment or operating system type.  Note that the structure of the hierarchy here is purely an example, and is entirely configurable to suit your specific environment and needs.
 
