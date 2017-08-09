@@ -1,3 +1,17 @@
+# Copyright 2017 Craig Dunn <craig@craigdunn.org>
+# 
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# 
+#     http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import yaml
 import os.path
 import requests
@@ -15,12 +29,19 @@ except ImportError:
 class Jerakia(object):
     def __init__(self,base):
         self.base = base
-        self.test_var = "world"
-        self.config = {}
         self.config = self.get_config()
 
+    def config_defaults(self):
+        return { 
+            'protocol': 'http',
+            'host': '127.0.0.1',
+            'port': '9843',
+            'version': '1',
+            'policy': 'default'
+        }
+
     def get_config(self, configfile='jerakia.yaml'):
-        defaults = { 'protocol': 'http', 'host': '127.0.0.1', 'port': '9843', 'version': '1', 'policy': 'default' }
+        defaults = self.config_defaults()
 
         if os.path.isfile(configfile):
             data = open(configfile, "r")
@@ -80,7 +101,8 @@ class Jerakia(object):
           raise AnsibleError("Bad HTTP response")
 
 
-
+# Entry point for Ansible starts here with the LookupModule class
+#
 class LookupModule(LookupBase):
 
     def run(self, terms, variables=None, **kwargs):
