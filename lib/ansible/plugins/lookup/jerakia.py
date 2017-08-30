@@ -59,15 +59,28 @@ class Jerakia(object):
         url = "%(proto)s://%(host)s:%(port)s/v%(version)s/lookup/%(key)s" % locals() 
         return url
 
+    def dot_to_dictval(self, dic, key):
+      key_arr = key.split('.')
+      this_key = key_arr.pop(0)
+
+      if not this_key in dic:
+        raise AnsibleError("Cannot find key %s " % key)
+
+      if len(key_arr) == 0:
+        return dic[this_key]
+
+      return self.dot_to_dictval(dic[this_key], '.'.join(key_arr))
+
+
     def scope(self, variables):
         scope_data = {}
         scope_conf = self.config['scope']
-        hn = self.config['scope']['hostname']
         if not self.config['scope']:
             return {}
         for key, val in scope_conf.iteritems():
             metadata_entry = "metadata_%(key)s" % locals()
-            scope_data[metadata_entry] = variables[val]
+            scope_value = self.dot_to_dictval(variables, val)
+            scope_data[metadata_entry] = scope_value
         return scope_data
 
         
@@ -88,7 +101,7 @@ class Jerakia(object):
         scope = self.scope(variables)
         options = { 
             'namespace': namespace_str,
-             'policy': policy,
+            'policy': policy,
         }
 
         params = dict(scope.items() + options.items())
