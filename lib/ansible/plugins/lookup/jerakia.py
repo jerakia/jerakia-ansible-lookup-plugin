@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import yaml
-import os.path
-import requests
 import json
+import os
+import requests
+import yaml
 
 from ansible.errors import AnsibleError
 from ansible.plugins.lookup import LookupBase
@@ -41,7 +41,7 @@ class Jerakia(object):
             'policy': 'default'
         }
 
-    def get_config(self, configfile='jerakia.yaml'):
+    def get_config(self, configfile=os.environ.get('ANSIBLE_JERAKIA_CONFIG', 'jerakia.yaml')):
         defaults = self.config_defaults()
 
         if os.path.isfile(configfile):
