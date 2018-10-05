@@ -1,23 +1,23 @@
 # Copyright 2017 Craig Dunn <craig@craigdunn.org>
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import yaml
-import os.path
-import requests
 import json
+import os
+import requests
+import yaml
 
-from ansible.errors import AnsibleError, AnsibleParserError
+from ansible.errors import AnsibleError
 from ansible.plugins.lookup import LookupBase
 
 try:
@@ -26,13 +26,14 @@ except ImportError:
     from ansible.utils.display import Display
     display = Display()
 
+
 class Jerakia(object):
-    def __init__(self,base):
+    def __init__(self, base):
         self.base = base
         self.config = self.get_config()
 
     def config_defaults(self):
-        return { 
+        return {
             'protocol': 'http',
             'host': '127.0.0.1',
             'port': '9843',
@@ -40,7 +41,7 @@ class Jerakia(object):
             'policy': 'default'
         }
 
-    def get_config(self, configfile='jerakia.yaml'):
+    def get_config(self, configfile=os.environ.get('ANSIBLE_JERAKIA_CONFIG', 'jerakia.yaml')):
         defaults = self.config_defaults()
 
         if os.path.isfile(configfile):
@@ -56,21 +57,20 @@ class Jerakia(object):
         host = self.config['host']
         port = self.config['port']
         version = self.config['version']
-        url = "%(proto)s://%(host)s:%(port)s/v%(version)s/lookup/%(key)s" % locals() 
+        url = "%(proto)s://%(host)s:%(port)s/v%(version)s/lookup/%(key)s" % locals()
         return url
 
     def dot_to_dictval(self, dic, key):
-      key_arr = key.split('.')
-      this_key = key_arr.pop(0)
+        key_arr = key.split('.')
+        this_key = key_arr.pop(0)
 
-      if not this_key in dic:
-        raise AnsibleError("Cannot find key %s " % key)
+        if this_key not in dic:
+            raise AnsibleError("Cannot find key %s " % key)
 
-      if len(key_arr) == 0:
-        return dic[this_key]
+        if len(key_arr) == 0:
+            return dic[this_key]
 
-      return self.dot_to_dictval(dic[this_key], '.'.join(key_arr))
-
+        return self.dot_to_dictval(dic[this_key], '.'.join(key_arr))
 
     def scope(self, variables):
         scope_data = {}
@@ -83,8 +83,6 @@ class Jerakia(object):
             scope_data[metadata_entry] = scope_value
         return scope_data
 
-        
-
     def headers(self):
         token = self.config['token']
         if not token:
@@ -94,12 +92,11 @@ class Jerakia(object):
             'X-Authentication': token
         }
 
-
     def lookup(self, key, namespace, policy='default', variables=None):
         endpoint_url = self.lookup_endpoint_url(key=key)
         namespace_str = '/'.join(namespace)
         scope = self.scope(variables)
-        options = { 
+        options = {
             'namespace': namespace_str,
             'policy': policy,
         }
@@ -109,30 +106,27 @@ class Jerakia(object):
 
         response = requests.get(endpoint_url, params=params, headers=headers)
         if response.status_code == requests.codes.ok:
-          return json.loads(response.text)
+            return json.loads(response.text)
         else:
-          raise AnsibleError("Bad HTTP response")
+            raise AnsibleError("Bad HTTP response")
 
 
 # Entry point for Ansible starts here with the LookupModule class
 #
 class LookupModule(LookupBase):
-
     def run(self, terms, variables=None, **kwargs):
+        jerakia = Jerakia(self)
+        ret = []
 
-         jerakia = Jerakia(self)
-         ret = []
+        for term in terms:
+            lookuppath = term.split('/')
+            key = lookuppath.pop()
+            namespace = lookuppath
 
-         for term in terms:
-             lookuppath=term.split('/')
-             key = lookuppath.pop()
-             namespace = lookuppath
+            if not namespace:
+                raise AnsibleError("No namespace given for lookup of key %s" % key)
 
-             if not namespace:
-                 raise AnsibleError("No namespace given for lookup of key %s" % key)
+            response = jerakia.lookup(key=key, namespace=namespace, variables=variables)
+            ret.append(response['payload'])
 
-             response = jerakia.lookup(key=key, namespace=namespace, variables=variables)
-             ret.append(response['payload'])
-
-         return ret
-
+        return ret
